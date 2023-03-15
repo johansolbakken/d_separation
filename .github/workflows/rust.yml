@@ -12,13 +12,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
 
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: 
-          cd d_separation
-          cargo build --verbose
+        run: cd d_separation && cargo build --verbose
       - name: Run tests
         run: cargo test --verbose
