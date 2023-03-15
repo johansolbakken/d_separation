@@ -45,7 +45,7 @@ impl Graph {
     }
 }
 
-pub fn add_parents(d_sep_graph: &mut Graph, base_graph: &Graph) {
+fn add_parents(d_sep_graph: &mut Graph, base_graph: &Graph) {
     let mut changed = true;
     while changed {
         changed = false;
@@ -67,7 +67,7 @@ pub fn add_parents(d_sep_graph: &mut Graph, base_graph: &Graph) {
     }
 }
 
-pub fn moralize(graph: &mut Graph) {
+fn moralize(graph: &mut Graph) {
     let mut new_edges: Vec<(String, String)> = vec![];
 
     for node1 in graph.nodes.keys() {
@@ -87,7 +87,7 @@ pub fn moralize(graph: &mut Graph) {
     }
 }
 
-pub fn double_edge(graph: &mut Graph) {
+fn double_edge(graph: &mut Graph) {
     let mut new_edges: Vec<(String, String)> = vec![];
 
     for node1 in graph.nodes.keys() {
@@ -105,8 +105,65 @@ pub fn double_edge(graph: &mut Graph) {
     }
 }
 
+pub fn find_path(
+    graph: &Graph,
+    node: &String,
+    first: &String,
+    target: &String,
+    seen: &HashMap<String, bool>,
+    marked: &Vec<String>,
+) -> bool {
+    if node == target {
+        return true;
+    }
+
+    if marked.contains(node) && node != first {
+        return false;
+    }
+
+    let mut seen_this = seen.clone();
+    seen_this.insert(node.clone(), true);
+
+    for child in graph.get_children(node).iter() {
+        println!("{:#?}", seen);
+        println!("{:#?}", graph);
+        if !seen[child] {
+            if find_path(graph, child, first, target, &seen_this, marked) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+pub fn is_d_separated(graph: &Graph, first: &String, second: &String, deps: &Vec<String>) -> bool {
+    let mut d_sep_graph = Graph::new();
+    d_sep_graph.add_node(first.clone());
+    d_sep_graph.add_node(second.clone());
+    for dep in deps {
+        d_sep_graph.add_node(dep.clone());
+    }
+
+    add_parents(&mut d_sep_graph, graph);
+    moralize(&mut d_sep_graph);
+    double_edge(&mut d_sep_graph);
+
+    let mut marked = deps.clone();
+    marked.push(first.clone());
+    marked.push(second.clone());
+    let mut seen: HashMap<String, bool> = HashMap::new();
+    for node in d_sep_graph.nodes.keys() {
+        seen.insert(node.clone(), false);
+    }
+
+    find_path(&d_sep_graph, first, first, second, &seen, &marked)
+}
+
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use super::*;
 
     #[test]
@@ -178,5 +235,64 @@ mod tests {
 
         assert!(d_sep_graph.nodes["B"].edges.contains("A"));
         assert!(d_sep_graph.nodes["B"].edges.contains("C"));
+    }
+
+    #[test]
+    fn test_not_d_separation() {
+        let mut graph = Graph::new();
+        graph.add_node("A".to_string());
+        graph.add_node("B".to_string());
+        graph.add_node("C".to_string());
+
+        graph.add_edge(&"A".to_string(), &"B".to_string());
+        graph.add_edge(&"C".to_string(), &"B".to_string());
+
+        assert!(is_d_separated(
+            &graph,
+            &"A".to_string(),
+            &"B".to_string(),
+            &vec![]
+        ));
+
+        assert!(!is_d_separated(
+            &graph,
+            &"A".to_string(),
+            &"C".to_string(),
+            &vec![]
+        ));
+
+        assert!(is_d_separated(
+            &graph,
+            &"A".to_string(),
+            &"C".to_string(),
+            &vec!["B".to_string()]
+        ));
+    }
+
+    #[test]
+    fn test_d_separation() {
+        let mut graph = Graph::new();
+        graph.add_node("A".to_string());
+        graph.add_node("B".to_string());
+        graph.add_node("C".to_string());
+        graph.add_node("D".to_string());
+
+        graph.add_edge(&"A".to_string(), &"B".to_string());
+        graph.add_edge(&"C".to_string(), &"B".to_string());
+        graph.add_edge(&"D".to_string(), &"C".to_string());
+
+        assert!(is_d_separated(
+            &graph,
+            &"A".to_string(),
+            &"C".to_string(),
+            &vec!["B".to_string()]
+        ));
+
+        assert!(is_d_separated(
+            &graph,
+            &"A".to_string(),
+            &"D".to_string(),
+            &vec!["B".to_string()]
+        ));
     }
 }
