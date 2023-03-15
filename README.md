@@ -1,3 +1,8 @@
+# D-separation
+
+Project where I implemented an algorithm that checks if a graph is d-separated in Rust.
+
+```rust
 use d_separation::{is_d_separated, Graph};
 
 fn main() {
@@ -15,3 +20,5 @@ fn main() {
 
     assert!(is_d_separated(&graph, &a, &c, &vec![c.clone()]));
 }
+
+```

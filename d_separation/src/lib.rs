@@ -17,12 +17,11 @@ impl Graph {
         }
     }
 
-    pub fn add_node(&mut self, name: String) -> String {
+    pub fn add_node(&mut self, name: &String) {
         let node = Node {
             edges: HashSet::new(),
         };
         self.nodes.insert(name.clone(), node);
-        name
     }
 
     pub fn add_edge(&mut self, from: &String, to: &String) {
@@ -54,7 +53,7 @@ fn add_parents(d_sep_graph: &mut Graph, base_graph: &Graph) {
             for node in d_sep_node_keys.iter() {
                 if possible_parent_children.contains(node) {
                     if !d_sep_graph.nodes.contains_key(possible_parent) {
-                        d_sep_graph.add_node(possible_parent.clone());
+                        d_sep_graph.add_node(possible_parent);
                     }
                     if !d_sep_graph.nodes[possible_parent].edges.contains(node) {
                         d_sep_graph.add_edge(possible_parent, node);
@@ -137,10 +136,10 @@ pub fn find_path(
 
 pub fn is_d_separated(graph: &Graph, first: &String, second: &String, deps: &Vec<String>) -> bool {
     let mut d_sep_graph = Graph::new();
-    d_sep_graph.add_node(first.clone());
-    d_sep_graph.add_node(second.clone());
+    d_sep_graph.add_node(first);
+    d_sep_graph.add_node(second);
     for dep in deps {
-        d_sep_graph.add_node(dep.clone());
+        d_sep_graph.add_node(dep);
     }
 
     add_parents(&mut d_sep_graph, graph);
@@ -167,16 +166,16 @@ mod tests {
     #[test]
     fn add_parents_test() {
         let mut base_graph = Graph::new();
-        base_graph.add_node("A".to_string());
-        base_graph.add_node("B".to_string());
-        base_graph.add_node("C".to_string());
+        base_graph.add_node(&"A".to_string());
+        base_graph.add_node(&"B".to_string());
+        base_graph.add_node(&"C".to_string());
 
         base_graph.add_edge(&"A".to_string(), &"B".to_string());
         base_graph.add_edge(&"A".to_string(), &"C".to_string());
 
         let mut d_sep_graph = Graph::new();
-        d_sep_graph.add_node("B".to_string());
-        d_sep_graph.add_node("C".to_string());
+        d_sep_graph.add_node(&"B".to_string());
+        d_sep_graph.add_node(&"C".to_string());
 
         add_parents(&mut d_sep_graph, &base_graph);
 
@@ -186,16 +185,16 @@ mod tests {
     #[test]
     fn moralize_test() {
         let mut base_graph = Graph::new();
-        base_graph.add_node("A".to_string());
-        base_graph.add_node("B".to_string());
-        base_graph.add_node("C".to_string());
+        base_graph.add_node(&"A".to_string());
+        base_graph.add_node(&"B".to_string());
+        base_graph.add_node(&"C".to_string());
 
         base_graph.add_edge(&"A".to_string(), &"B".to_string());
         base_graph.add_edge(&"C".to_string(), &"B".to_string());
 
         let mut d_sep_graph = Graph::new();
-        d_sep_graph.add_node("B".to_string());
-        d_sep_graph.add_node("C".to_string());
+        d_sep_graph.add_node(&"B".to_string());
+        d_sep_graph.add_node(&"C".to_string());
 
         add_parents(&mut d_sep_graph, &base_graph);
         moralize(&mut d_sep_graph);
@@ -210,16 +209,16 @@ mod tests {
     #[test]
     fn double_edge_test() {
         let mut base_graph = Graph::new();
-        base_graph.add_node("A".to_string());
-        base_graph.add_node("B".to_string());
-        base_graph.add_node("C".to_string());
+        base_graph.add_node(&"A".to_string());
+        base_graph.add_node(&"B".to_string());
+        base_graph.add_node(&"C".to_string());
 
         base_graph.add_edge(&"A".to_string(), &"B".to_string());
         base_graph.add_edge(&"C".to_string(), &"B".to_string());
 
         let mut d_sep_graph = Graph::new();
-        d_sep_graph.add_node("B".to_string());
-        d_sep_graph.add_node("C".to_string());
+        d_sep_graph.add_node(&"B".to_string());
+        d_sep_graph.add_node(&"C".to_string());
 
         add_parents(&mut d_sep_graph, &base_graph);
         moralize(&mut d_sep_graph);
@@ -238,9 +237,9 @@ mod tests {
     #[test]
     fn test_not_d_separation() {
         let mut graph = Graph::new();
-        graph.add_node("A".to_string());
-        graph.add_node("B".to_string());
-        graph.add_node("C".to_string());
+        graph.add_node(&"A".to_string());
+        graph.add_node(&"B".to_string());
+        graph.add_node(&"C".to_string());
 
         graph.add_edge(&"A".to_string(), &"B".to_string());
         graph.add_edge(&"C".to_string(), &"B".to_string());
@@ -270,10 +269,10 @@ mod tests {
     #[test]
     fn test_d_separation() {
         let mut graph = Graph::new();
-        graph.add_node("A".to_string());
-        graph.add_node("B".to_string());
-        graph.add_node("C".to_string());
-        graph.add_node("D".to_string());
+        graph.add_node(&"A".to_string());
+        graph.add_node(&"B".to_string());
+        graph.add_node(&"C".to_string());
+        graph.add_node(&"D".to_string());
 
         graph.add_edge(&"A".to_string(), &"B".to_string());
         graph.add_edge(&"C".to_string(), &"B".to_string());
