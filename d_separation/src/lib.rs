@@ -2,7 +2,6 @@ use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
 pub struct Node {
-    name: String,
     edges: HashSet<String>,
 }
 
@@ -20,7 +19,6 @@ impl Graph {
 
     pub fn add_node(&mut self, name: String) -> String {
         let node = Node {
-            name: name.clone(),
             edges: HashSet::new(),
         };
         self.nodes.insert(name.clone(), node);
