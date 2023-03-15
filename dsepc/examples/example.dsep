@@ -1,0 +1,9 @@
+node A D
+node B
+node C
+A -> B
+B -> C
+calc A B / C
+calc A B
+calc A B / C D
+calc A B /
