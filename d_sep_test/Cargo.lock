@@ -5,3 +5,10 @@ version = 3
 [[package]]
 name = "d_sep_test"
 version = "0.1.0"
+dependencies = [
+ "d_separation",
+]
+
+[[package]]
+name = "d_separation"
+version = "0.1.0"
