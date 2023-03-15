@@ -1,4 +1,4 @@
-use d_separation::{add_parents, moralize, Graph};
+use d_separation::{add_parents, double_edge, moralize, Graph};
 
 fn main() {
     let mut base_graph = Graph::new();
@@ -15,6 +15,7 @@ fn main() {
 
     add_parents(&mut d_sep_graph, &base_graph);
     moralize(&mut d_sep_graph);
+    double_edge(&mut d_sep_graph);
 
     println!("{:#?}", d_sep_graph);
 }

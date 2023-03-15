@@ -87,6 +87,24 @@ pub fn moralize(graph: &mut Graph) {
     }
 }
 
+pub fn double_edge(graph: &mut Graph) {
+    let mut new_edges: Vec<(String, String)> = vec![];
+
+    for node1 in graph.nodes.keys() {
+        for node2 in graph.nodes.keys() {
+            if node1 != node2 {
+                if graph.is_connected(node1, node2) {
+                    new_edges.push((node1.clone(), node2.clone()));
+                }
+            }
+        }
+    }
+
+    for (node1, node2) in new_edges {
+        graph.add_edge(&node1, &node2);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -132,5 +150,33 @@ mod tests {
 
         assert!(d_sep_graph.nodes["C"].edges.contains("A"));
         assert!(d_sep_graph.nodes["C"].edges.contains("B"));
+    }
+
+    #[test]
+    fn double_edge_test() {
+        let mut base_graph = Graph::new();
+        base_graph.add_node("A".to_string());
+        base_graph.add_node("B".to_string());
+        base_graph.add_node("C".to_string());
+
+        base_graph.add_edge(&"A".to_string(), &"B".to_string());
+        base_graph.add_edge(&"C".to_string(), &"B".to_string());
+
+        let mut d_sep_graph = Graph::new();
+        d_sep_graph.add_node("B".to_string());
+        d_sep_graph.add_node("C".to_string());
+
+        add_parents(&mut d_sep_graph, &base_graph);
+        moralize(&mut d_sep_graph);
+        double_edge(&mut d_sep_graph);
+
+        assert!(d_sep_graph.nodes["A"].edges.contains("B"));
+        assert!(d_sep_graph.nodes["A"].edges.contains("C"));
+
+        assert!(d_sep_graph.nodes["C"].edges.contains("A"));
+        assert!(d_sep_graph.nodes["C"].edges.contains("B"));
+
+        assert!(d_sep_graph.nodes["B"].edges.contains("A"));
+        assert!(d_sep_graph.nodes["B"].edges.contains("C"));
     }
 }
