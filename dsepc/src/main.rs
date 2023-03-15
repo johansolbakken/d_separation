@@ -1,9 +1,10 @@
 use std::{
     collections::HashSet,
     env, fs,
-    process::{self, id},
+    process::{self},
 };
 
+use d_separation::{is_d_separated, Graph};
 use fancy_regex::Regex;
 
 #[derive(Debug)]
@@ -35,7 +36,6 @@ fn compile(source: String) -> Intermediate {
     .unwrap();
 
     for line in source.lines() {
-        println!("{}", line);
         if node_regex.is_match(line).unwrap() {
             let list = line.split(" ").collect::<Vec<&str>>();
             for i in 1..list.len() {
@@ -60,6 +60,20 @@ fn compile(source: String) -> Intermediate {
     intermediate
 }
 
+fn build_graph(intermediate: &Intermediate) -> Graph {
+    let mut graph = Graph::new();
+
+    for node in intermediate.nodes.iter() {
+        graph.add_node(&node);
+    }
+
+    for edge in intermediate.edges.iter() {
+        graph.add_edge(&edge.0, &edge.1);
+    }
+
+    graph
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -72,5 +86,29 @@ fn main() {
     let source = fs::read_to_string(filepath).expect("Error reading file");
 
     let intermediate = compile(source);
-    println!("{:#?}", intermediate);
+
+    let graph = build_graph(&intermediate);
+
+    for calculation in intermediate.calculations.iter() {
+        // split calculation into list of String
+        let list = calculation
+            .split(" ")
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>();
+
+        let d_separated = if list.len() == 2 {
+            is_d_separated(&graph, &list[0].to_string(), &list[1].to_string(), &vec![])
+        } else if list.len() > 3 {
+            is_d_separated(
+                &graph,
+                &list[0].to_string(),
+                &list[1].to_string(),
+                &list[3..].to_vec(),
+            )
+        } else {
+            continue;
+        };
+
+        println!("{} -> {}", calculation, d_separated);
+    }
 }

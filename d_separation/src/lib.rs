@@ -122,8 +122,6 @@ pub fn find_path(
     seen_this.insert(node.clone(), true);
 
     for child in graph.get_children(node).iter() {
-        println!("{:#?}", seen);
-        println!("{:#?}", graph);
         if !seen[child] {
             if find_path(graph, child, first, target, &seen_this, marked) {
                 return true;
